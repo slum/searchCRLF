@@ -1,9 +1,7 @@
-import java.io.BufferedReader;
+package io.xx;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.lang.*;
 
 public class SearchMain { 
 
@@ -23,7 +21,14 @@ public class SearchMain {
         searchFd(pFd, match);
     }
 
-    public static boolean searchFd (File pFd, String regex) {
+    public static boolean searchFd (File pFd, final String regex) {
+        
+        if (pFd.isFile()) {
+            
+            searchF(pFd);
+            return true;
+        }
+
 
         for (File f : pFd.listFiles(new FileFilter(){
             
@@ -44,7 +49,7 @@ public class SearchMain {
 
             public boolean accept(File f) {
 
-                if (f.isDirectory()) {
+                if (f.isDirectory() && !f.getName().startsWith(".")) {
                     return true;
                 }
                 return false;
@@ -69,21 +74,21 @@ public class SearchMain {
                 return true;
             }
             
-            byte[] data = new byte[fis.read() + 1];
+            byte[] data = new byte[(int)f.length() + 1];
             fis.read(data);
             data[data.length - 1] = 'T';
 
             StringBuilder sb = new StringBuilder();
-            int flg = 0;
+            int flg = 0x00;
             for (int i = 0; i < data.length - 1; i++) {
                 
                 // judge binary file
-                if (data[i] > 127 && data[i] < 160 ||
-                    data[i] >= 160 && data[i + 1] < 160 ||
-                    data[i] < 32 && (data[i] != 9 && data[i] != 10)) {
-                        sb.append(" : binary file! skiped");
-                        break;
-                    }
+                // if (data[i] > 127 && data[i] < 160 ||
+                //    data[i] >= 160 && data[i + 1] < 160 ||
+                //    data[i] < 32 && (data[i] != 9 && data[i] != 10)) {
+                //        sb.append(" : binary file! skiped");
+                //        break;
+                //    }
 
                 if (data[i] == cr && data[i + 1] == lf) {
                     flg = (flg | 0x04);
